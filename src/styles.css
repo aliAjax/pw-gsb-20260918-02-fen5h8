@@ -5,6 +5,7 @@
   --primary: #0f766e;
   --secondary: #2563eb;
   --accent: #f97316;
+  --danger: #dc2626;
   --border: #d9e2ef;
 }
 
@@ -18,7 +19,9 @@ body {
 }
 
 button,
-input {
+input,
+select,
+textarea {
   font: inherit;
 }
 
@@ -29,6 +32,16 @@ button {
   background: #ffffff;
   color: #172033;
   cursor: pointer;
+  transition: filter 0.15s ease, background 0.15s ease;
+}
+
+button:hover:not(:disabled) {
+  filter: brightness(0.97);
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .app {
@@ -79,6 +92,39 @@ button {
   line-height: 1.75;
 }
 
+/* ---------- 班次切换 ---------- */
+
+.shift-bar {
+  margin-top: 18px;
+}
+
+.shift-chips {
+  gap: 8px;
+}
+
+.shift-chip {
+  padding: 0 14px;
+  font-weight: 600;
+}
+
+.shift-chip.active {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: #ffffff;
+}
+
+.shift-chip.handed {
+  border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
+  background: color-mix(in srgb, var(--primary) 14%, #ffffff);
+  color: var(--primary);
+}
+
+.shift-chip.handed.active {
+  color: #ffffff;
+}
+
+/* ---------- 看板统计 ---------- */
+
 .metrics {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -91,15 +137,52 @@ button {
   border-top: 4px solid var(--secondary);
 }
 
+.metrics article.metric-primary {
+  border-top-color: var(--primary);
+}
+
+.metrics article.metric-accent {
+  border-top-color: var(--accent);
+}
+
 .metrics small {
   color: #64748b;
 }
 
 .metrics strong {
-  display: block;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
   margin-top: 10px;
   font-size: 30px;
 }
+
+.metric-accent strong {
+  color: var(--accent);
+}
+
+.metrics .pulse {
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 700;
+  color: #ffffff;
+  background: var(--accent);
+  border-radius: 999px;
+  padding: 2px 10px;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+/* ---------- 面板 / 布局 ---------- */
 
 .workspace {
   display: grid;
@@ -130,6 +213,19 @@ button {
   background: color-mix(in srgb, var(--primary) 8%, #ffffff);
 }
 
+.chips button.active {
+  border-color: var(--secondary);
+  background: var(--secondary);
+  color: #ffffff;
+}
+
+.filter-hint {
+  margin: 14px 0 0;
+  font-size: 12px;
+  line-height: 1.7;
+  color: #64748b;
+}
+
 .heading {
   display: flex;
   align-items: start;
@@ -149,6 +245,8 @@ button {
   padding: 0 14px;
 }
 
+/* ---------- 表单 ---------- */
+
 .field-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -165,31 +263,153 @@ label span {
   font-size: 13px;
 }
 
-input {
+input,
+select,
+textarea {
   width: 100%;
   min-height: 42px;
   border-radius: 7px;
   border: 1px solid var(--border);
-  padding: 0 12px;
+  padding: 8px 12px;
+  background: #ffffff;
+  color: #172033;
 }
+
+textarea {
+  resize: vertical;
+}
+
+input:read-only {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.span-2 {
+  grid-column: span 2;
+}
+
+.form-error {
+  margin: 14px 0 0;
+  padding: 10px 12px;
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--danger) 9%, #ffffff);
+  border: 1px solid color-mix(in srgb, var(--danger) 35%, var(--border));
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.form-tip {
+  margin: 14px 0 0;
+  padding: 10px 12px;
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--accent) 9%, #ffffff);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+  color: #b45309;
+  font-size: 13px;
+}
+
+/* ---------- 交接班闭环 ---------- */
+
+.handover-panel {
+  border-left: 5px solid var(--primary);
+  margin-bottom: 18px;
+}
+
+.handover-action {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+  max-width: 60%;
+}
+
+.handover-btn {
+  min-width: 132px;
+  font-weight: 800;
+  padding: 0 18px;
+}
+
+.handover-btn:not(:disabled) {
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--primary) 35%, transparent);
+}
+
+.blockers {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--danger);
+}
+
+.blockers.ok {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.blocker-tag {
+  font-style: normal;
+  background: color-mix(in srgb, var(--danger) 10%, #ffffff);
+  border: 1px solid color-mix(in srgb, var(--danger) 40%, var(--border));
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-weight: 700;
+}
+
+.handover-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  color: #526071;
+  font-size: 14px;
+}
+
+.handover-summary span {
+  background: #f1f5f9;
+  border-radius: 999px;
+  padding: 4px 14px;
+}
+
+/* ---------- 历史记录 / 异常时间线 ---------- */
 
 .records {
   display: grid;
   gap: 12px;
 }
 
-.records article {
+.records > .empty-tip {
+  margin: 0;
+  padding: 24px;
+  text-align: center;
+  color: #64748b;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+}
+
+.records article.record-card {
   display: grid;
   grid-template-columns: 54px 1fr;
   gap: 14px;
-  align-items: center;
+  align-items: start;
   padding: 14px;
   border: 1px solid var(--border);
   border-radius: 8px;
   background: #fbfdff;
 }
 
-.records b {
+.records article.record-card.pinned {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+  border-left-width: 5px;
+  background: color-mix(in srgb, var(--accent) 6%, #fbfdff);
+  order: -1;
+}
+
+.records article.record-card.open:not(.pinned) {
+  border-color: color-mix(in srgb, var(--secondary) 40%, var(--border));
+}
+
+.records article.record-card > b {
   display: grid;
   place-items: center;
   height: 44px;
@@ -198,14 +418,93 @@ input {
   background: linear-gradient(135deg, var(--primary), var(--accent));
 }
 
-.records h3 {
-  margin-bottom: 6px;
+.records article.record-card.pinned > b {
+  background: linear-gradient(135deg, var(--accent), #b91c1c);
 }
 
-.records p {
-  margin: 0;
+.record-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.record-meta small {
+  color: #94a3b8;
+}
+
+.record-body h3 {
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.record-body p {
+  margin: 4px 0;
   color: #526071;
   line-height: 1.6;
+}
+
+.record-body .anomaly {
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+.pin-flag {
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 2px 10px;
+  background: color-mix(in srgb, var(--danger) 12%, #ffffff);
+  color: var(--danger);
+  border: 1px solid color-mix(in srgb, var(--danger) 35%, var(--border));
+}
+
+.pin-flag.processing {
+  background: color-mix(in srgb, var(--secondary) 10%, #ffffff);
+  color: var(--secondary);
+  border-color: color-mix(in srgb, var(--secondary) 35%, var(--border));
+}
+
+.pin-flag.done {
+  background: color-mix(in srgb, var(--primary) 10%, #ffffff);
+  color: var(--primary);
+  border-color: color-mix(in srgb, var(--primary) 35%, var(--border));
+}
+
+.record-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.inline-select {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  grid-template-columns: none;
+}
+
+.inline-select span {
+  font-size: 13px;
+}
+
+.inline-select select {
+  width: auto;
+  min-height: 34px;
+}
+
+.ghost-danger {
+  min-height: 34px;
+  padding: 0 12px;
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 35%, var(--border));
+  background: color-mix(in srgb, var(--danger) 6%, #ffffff);
 }
 
 @media (max-width: 860px) {
@@ -215,8 +514,17 @@ input {
     grid-template-columns: 1fr;
   }
 
+  .span-2 {
+    grid-column: span 1;
+  }
+
   .hero {
     min-height: 210px;
     padding: 24px;
+  }
+
+  .handover-action {
+    max-width: 100%;
+    justify-content: flex-start;
   }
 }
